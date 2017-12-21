@@ -5,3 +5,4 @@ lib/
 .DS_Store
 .idea/
 pip-selfcheck.json
+**/__pycache__
