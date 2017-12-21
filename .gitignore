@@ -1,8 +1,9 @@
 bin/
 include/
 lib/
-*.egg-info
-.DS_Store
+*.egg-info/
+.DS_Store/
 .idea/
+
 pip-selfcheck.json
 **/__pycache__

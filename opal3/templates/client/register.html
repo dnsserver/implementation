@@ -1,0 +1,51 @@
+{%- extends "base.html" %}
+{% block content %}
+<div class="container">
+    <form action="{{ url_for('client.register') }}" method="POST" class="add-entry">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" aria-describedby="nameHelp"
+                   placeholder="Enter name" name="name"/>
+            <small id="nameHelp" class="form-text text-muted">Name of the client.</small>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="5" cols="40"
+                      aria-describedby="descriptionHelp"></textarea>
+            <small id="descriptionHelp" class="form-text text-muted">Short description.</small>
+        </div>
+        <div class="form-group">
+            <label for="orn">ORN</label>
+            <select multiple class="form-control" name="orn" id="orn" aria-describedby="ORNHelp">
+                    {% for orn in orns %}
+                    <option value="{{orn.id}}">{{orn.name}}</option>
+                    {% else %}
+                    <option value="-1" disabled="disabled">No ORNs</option>
+                    {% endfor %}
+                </select>
+            <small id="ORNHelp" class="form-text text-muted">ORN for this client.</small>
+        </div>
+        <div class="form-check">
+            <label for="recurring" class="form-check-label">
+                <input type="checkbox" class="form-check-input" id="recurring" aria-describedby="recurringHelp"
+                   name="recurring"/>
+                Recurring
+            </label>
+            <div>
+                <small id="recurringHelp" class="form-text text-muted">Recurring job.</small>
+            </div>
+        </div>
+        <br/>
+        <div class="form-group">
+            <label for="redirect_url">Redirect URL</label>
+            <input type="text" class="form-control" id="redirect_url" aria-describedby="redirectUrlHelp"
+                   placeholder="http://example.com/oidc_callback" name="redirect_url"/>
+            <small id="RedirectUrlHelp" class="form-text text-muted">Redirect URL for the client Application.</small>
+        </div>
+        <br/>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Register</button>
+        </div>
+    </form>
+</div>
+{%- endblock %}

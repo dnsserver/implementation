@@ -1,0 +1,22 @@
+{%- extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="jumbotron">
+        <h1>Registered Personas</h1>
+    </div>
+    <div>
+        <a class="btn btn-default" href="{{url_for('client.register')}}">Create new</a>
+    </div>
+    <div>
+        <ul class="list-group">
+        {% for dsc in dsclients %}
+            <li class="list-group-item">
+                <a href="{{ url_for('client.details', id=dsc.id) }}">{{dsc.name}}</a>
+            </li>
+        {% else %}
+            <li class="list-group-item">No registered personas</li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{%- endblock %}

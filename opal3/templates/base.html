@@ -1,0 +1,45 @@
+{# ``base.html`` is the template all our other templates derive from. While
+Flask-Bootstrap ships with its own base, it is good form to create a custom
+one for our app, as it allows customizing some aspects.
+
+Deriving from bootstap/base.html gives us a basic page scaffoling.
+
+You can find additional information about template inheritance at
+
+http://jinja.pocoo.org/docs/templates/#template-inheritance
+#}
+{%- extends "bootstrap/base.html" %}
+
+{% block title %}OPAL CoreID Provider{% endblock %}
+
+{% import "bootstrap/fixes.html" as fixes %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+{%- endblock %}
+
+{% block styles -%}
+{{super()}}
+
+<link rel="stylesheet" type="text/css"
+      href="{{url_for('static', filename='style.css')}}">
+{% endblock %}
+
+{# Finally, round things out with navigation #}
+{% block navbar %}
+<div class="container">
+    {{nav.opalnavbar.render()}}
+
+    {% import "bootstrap/utils.html" as utils %}
+    {%- with messages = get_flashed_messages(with_categories=True) %}
+    {%- if messages %}
+    <div class="row">
+        <div class="col-md-12">
+            {{utils.flashed_messages(messages)}}
+        </div>
+    </div>
+    {%- endif %}
+    {%- endwith %}
+</div>
+{% endblock %}

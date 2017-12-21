@@ -1,0 +1,9 @@
+{%- extends "base.html" %}
+{% block content %}
+    {% if client %}
+        Request:  <pre>{{client.request_json}}</pre>
+        Response: <pre>{{client.response_json}}</pre>
+    {% else %}
+        <p>{{error}}</p>
+    {% endif %}
+{%- endblock %}
