@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 from flask import g, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
@@ -52,25 +51,25 @@ class User(db.Model):
             "nick": self.nick,
             "full_name": self.full_name,
             "other": self.other,
-            "user_info": [user_info.id for user_info in self.info]
+            "persona_provider": [pp.id for pp in self.persona_provider]
         }
 
 
-class UserInfo(db.Model):
+class PersonaProvider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(64), nullable=False)
-    value = db.Column(db.String(64))
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
     user_id = db.Column(db.String(200), db.ForeignKey(User.id))
-    user = db.relationship(User, backref='info')
+    user = db.relationship(User, backref='persona_provider')
 
     def __str__(self):
-        return '%s - %s' % (self.key, self.value)
+        return self.name
 
     def json_obj(self):
         return {
             "id": self.id,
-            "key": self.key,
-            "value": self.value,
+            "name": self.name,
+            "description": self.description,
             "user": self.user_id
         }
 
@@ -110,10 +109,10 @@ orn_tags_table = db.Table('orn_tags', db.Model.metadata,
                           )
 
 # Create M2M table
-orn_dsclient_table = db.Table('orn_dsclient', db.Model.metadata,
-                              db.Column('orn_id', db.Integer, db.ForeignKey('orn.id')),
-                              db.Column('ds_client_id', db.Integer, db.ForeignKey('ds_client.id'))
-                              )
+orn_persona_template_table = db.Table('orn_persona_template', db.Model.metadata,
+                                      db.Column('orn_id', db.Integer, db.ForeignKey('orn.id')),
+                                      db.Column('persona_template_id', db.Integer, db.ForeignKey('persona_template.id'))
+                                      )
 
 
 class Orn(db.Model):
@@ -125,7 +124,7 @@ class Orn(db.Model):
     tags = db.relationship('Tag', secondary=orn_tags_table)
     orn_type_id = db.Column(db.Integer, db.ForeignKey(OrnType.id), nullable=False)
     orn_type = db.relationship(OrnType, backref='orn')
-    dsclients = db.relationship('DSClient', secondary=orn_dsclient_table)
+    persona_templates = db.relationship('persona_templates', secondary=orn_persona_template_table)
 
     def __str__(self):
         return self.name
@@ -142,18 +141,18 @@ class Orn(db.Model):
         }
 
 
-class DSClient(db.Model):
+class PersonaTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    orns = db.relationship('Orn', secondary=orn_dsclient_table)
+    orns = db.relationship('Orn', secondary=orn_persona_template_table)
     recurring = db.Column(db.Boolean, default=False)
     result_url = db.Column(db.String(200), nullable=False)
     registered_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     request_json = db.Column(db.Text)
     response_json = db.Column(db.Text)
-    user_id = db.Column(db.String(200), db.ForeignKey(User.id))
-    user = db.relationship(User, backref='dsclient')
+    persona_provider_id = db.Column(db.String(200), db.ForeignKey(PersonaProvider.id))
+    persona_provider = db.relationship(PersonaProvider, backref='persona_template')
 
     def json_obj(self):
         return {
@@ -166,13 +165,13 @@ class DSClient(db.Model):
             "registered_date": str(self.registered_date),
             "request_json": self.request_json,
             "response_json": self.response_json,
-            "user": self.user_id,
+            "persona_provider": self.persona_provider_id,
         }
 
 
 # Customized User model admin
 class UserAdmin(sqla.ModelView):
-    inline_models = (UserInfo,)
+    inline_models = (PersonaProvider,)
 
     def is_accessible(self):
         return hasattr(g, 'user')
@@ -239,6 +238,6 @@ admin.add_view(UserAdmin(User, db.session))
 admin.add_view(OrnAdmin(db.session))
 admin.add_view(MyModelView(OrnType, db.session))
 admin.add_view(MyModelView(Tag, db.session))
-admin.add_view(MyModelView(DSClient, db.session))
+admin.add_view(MyModelView(PersonaTemplate, db.session))
 
 admin.add_link(AuthenticatedMenuLink(name="Logout", endpoint="logout"))
