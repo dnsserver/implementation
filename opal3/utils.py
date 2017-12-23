@@ -1,5 +1,5 @@
 from werkzeug.utils import find_modules, import_string
-from flask import _app_ctx_stack as stack
+from flask import g
 
 
 def register_blueprints(app):
@@ -13,13 +13,3 @@ def register_blueprints(app):
             app.register_blueprint(mod.bp)
     return None
 
-
-def register_teardowns(app):
-    @app.teardown_appcontext
-    def close_db(error):
-        """Closes the blueprints again at the end of the request."""
-        print("teardown called.")
-        ctx = stack.top
-        if ctx is not None:
-            if hasattr(ctx, 'sqlite3_opal'):
-                ctx.sqlite3_opal.close()
