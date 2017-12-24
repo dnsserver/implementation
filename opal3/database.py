@@ -124,7 +124,7 @@ class Orn(db.Model):
     tags = db.relationship('Tag', secondary=orn_tags_table)
     orn_type_id = db.Column(db.Integer, db.ForeignKey(OrnType.id), nullable=False)
     orn_type = db.relationship(OrnType, backref='orn')
-    persona_templates = db.relationship('persona_templates', secondary=orn_persona_template_table)
+    persona_template = db.relationship('PersonaTemplate', secondary=orn_persona_template_table)
 
     def __str__(self):
         return self.name
