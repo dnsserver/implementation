@@ -7,3 +7,6 @@ lib/
 
 pip-selfcheck.json
 **/__pycache__
+
+.eggs
+**/*.db
