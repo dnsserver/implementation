@@ -7,8 +7,8 @@ from flask_nav import Nav
 from flask_nav.elements import Navbar, View
 from flask_bootstrap import Bootstrap
 
-from .database import db, admin, User, OrnType
-from .utils import register_blueprints, register_teardowns
+from .database import register_database, db, admin, User, OrnType
+from .utils import register_blueprints
 from .oidc import register_oidc, oidc
 
 
@@ -27,6 +27,8 @@ def create_app(config=None):
         OIDC_CLIENT_SECRETS='opal3/client_secrets.json',
         OIDC_ID_TOKEN_COOKIE_SECURE=False,
         OIDC_REQUIRE_VERIFIED_EMAIL=False,
+        OIDC_USER_INFO_ENABLED=True,
+        OIDC_INTROSPECTION_AUTH_METHOD='client_secret_post',
         OIDC_OPENID_REALM='http://localhost:5000/oidc_callback',
         OIDC_SCOPES=['openid', 'profile', 'email', 'address', 'phone', 'dynamic', ],
     ))
@@ -35,8 +37,7 @@ def create_app(config=None):
     app.config.from_envvar('OPAL3_SETTINGS', silent=True)
 
     register_cli(app)
-    register_teardowns(app)
-    load_db(app)
+    register_database(app)
     register_oidc(app)
 
     admin.init_app(app)
@@ -61,7 +62,7 @@ def register_nav(app):
         else:
             items.append(View('Login', 'login'))
 
-        return Navbar('', *items)
+        return Navbar('OPAL', *items)
     nav.init_app(app)
 
 
@@ -76,18 +77,6 @@ def register_cli(app):
             db.session.add(dt)
         db.session.commit()
         click.echo('Initialized the database.')
-
-
-def load_db(app):
-    """
-    Opens a new database connection if there is none yet for the
-    current application context.
-    """
-    ctx = stack.top
-    db.init_app(app)
-    if ctx is not None:
-        if not hasattr(ctx, 'sqlite3_opal'):
-            ctx.sqlite3_opal = db
 
 
 app = create_app()
