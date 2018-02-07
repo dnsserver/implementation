@@ -30,7 +30,7 @@ def create_app(config=None):
         OIDC_USER_INFO_ENABLED=True,
         OIDC_INTROSPECTION_AUTH_METHOD='client_secret_post',
         OIDC_OPENID_REALM='http://localhost:5000/oidc_callback',
-        OIDC_SCOPES=['openid', 'profile', 'email', 'address', 'phone', 'dynamic', ],
+        OIDC_SCOPES=['openid', 'profile', 'email', 'address', 'phone', ],
     ))
 
     app.config.update(config or {})

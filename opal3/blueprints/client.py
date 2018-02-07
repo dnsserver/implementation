@@ -37,7 +37,7 @@ def index():
     return jsonify(cls)
 
 
-@bp.route('/client/<cid>', methods=['GET', 'DELETE'])
+@bp.route('/client/<cid>', methods=['DELETE'])
 @oidc.accept_token(True, ['openid'])
 def delete(cid):
     pt = get_persona_template(cid, g.sub)
@@ -46,7 +46,7 @@ def delete(cid):
     return redirect(url_for('client.index'))
 
 
-@bp.route('/client/<cid>', methods=['GET', 'DELETE'])
+@bp.route('/client/<cid>', methods=['GET'])
 @oidc.accept_token(True, ['openid'])
 def details(cid):
     pt = get_persona_template(cid, g.sub)
@@ -94,7 +94,6 @@ def register():
     try:
         r = oidc.register_client(client_obj)
         pt.response_json = json.dumps(r)
-
         db.session.add(pt)
         db.session.commit()
 
