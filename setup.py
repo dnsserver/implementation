@@ -2,6 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='opal3',
+    version='0.3',
+    license='MIT',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[

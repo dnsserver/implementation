@@ -2,7 +2,20 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-class App extends Component {
+import { OpalAPI } from './utils/opal-api';
+
+export default class App extends Component {
+  constructor(props){
+    super(props);
+    const token = sessionStorage.getItem('session');
+    this.state = {
+      isAuthenticated: token? true: false,
+      auth_token: token
+    };
+    let a = new OpalAPI('base_url');
+    a.test('this is the message');
+  }
+  
   render() {
     return (
       <div className="App">
@@ -17,5 +30,3 @@ class App extends Component {
     );
   }
 }
-
-export default App;
