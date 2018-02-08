@@ -13,6 +13,10 @@ setup(
         'flask_oidc',
         'flask_bootstrap',
         'flask_nav',
+        'flask-cors',
+        'pyopenssl',
+        'pyjwt',
+        'bcrypt',
     ],
     setup_requires=[
         'pytest-runner',
@@ -21,4 +25,3 @@ setup(
         'pytest',
     ],
 )
-

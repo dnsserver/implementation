@@ -6,6 +6,7 @@ from flask import Flask, render_template, _app_ctx_stack as stack, session, g, r
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View
 from flask_bootstrap import Bootstrap
+from flask_cors import CORS
 
 from .database import register_database, db, admin, User, OrnType
 from .utils import register_blueprints
@@ -36,6 +37,7 @@ def create_app(config=None):
     app.config.update(config or {})
     app.config.from_envvar('OPAL3_SETTINGS', silent=True)
 
+    CORS(app)
     register_cli(app)
     register_database(app)
     register_oidc(app)
