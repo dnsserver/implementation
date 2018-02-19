@@ -14,12 +14,12 @@ export default class OIDC extends Component {
     "scopes": "openid profile",
     "client_id": "",
     "client_secret": "",
-    "auth_uri":"http://localhost:8085/openid-connect-server-webapp/authorize",
-    "token_uri":"http://localhost:8085/openid-connect-server-webapp/token",
-    "userinfo_uri":"http://localhost:8085/openid-connect-server-webapp/userinfo",
-    "issuer":"http://localhost:8085/openid-connect-server-webapp/",
-    "token_introspection_uri":"http://localhost:8085/openid-connect-server-webapp/introspect",
-    "registration_uri":"http://localhost:8085/openid-connect-server-webapp/register"
+    "auth_uri":"https://macpro:8448/openid-connect-server-webapp/authorize",
+    "token_uri":"https://macpro:8448/openid-connect-server-webapp/token",
+    "userinfo_uri":"https://macpro:8448/openid-connect-server-webapp/userinfo",
+    "issuer":"https://macpro:8448/openid-connect-server-webapp/",
+    "token_introspection_uri":"https://macpro:8448/openid-connect-server-webapp/introspect",
+    "registration_uri":"https://macpro:8448/openid-connect-server-webapp/register"
 }`;
         }
         this.state = {
@@ -36,8 +36,10 @@ export default class OIDC extends Component {
             if(code){
                 let opalAPI = new OpalAPI();
                 opalAPI.getAccessToken(cObj, code).then((data)=>{
-                    console.log(data);
-                })
+                    if(this.props.onSuccessLogin){
+                        this.props.onSuccessLogin(data);
+                    }
+                });
             }
         }
     }

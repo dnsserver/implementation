@@ -8,23 +8,33 @@ function OpalAPI() {
 
     this.getAccessToken = function(config, code){
         const url = config.token_uri;
-        //const token = btoa(config.client_id+":"+config.client_secret);
+        const token = btoa(config.client_id+":"+config.client_secret);
         const redirect_uri = config.base_url+config.redirect_uri;
-        var q = new URLSearchParams();
-        q.set('grant_type','authorization_code');
-        q.set('code', code);
-        q.set('redirect_uri', redirect_uri);
 
+        var params = new URLSearchParams();
+        params.append('grant_type', 'authorization_code');
+        params.append('code', code);
+        params.append('redirect_uri', redirect_uri);
         return axios.request({
-            url: url +"?"+q.toString(),
-            method:'get',
+            url: url,
+            method:'post',
             headers: {
-                'Content-Type': 'text/plain'
+                'Content-Type':'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${token}`
             },
-            auth: {
-                username: config.client_id,
-                password: config.client_secret
-            },
+            data: params,
+        }).then(response => response.data);
+    }
+
+    this.getWellKnownURLs = function(base_url){
+        const url = '/.well-known/openid-configuration';
+        return axios.request({
+          url: url,
+          method:'get',
+          baseURL: base_url,
+          headers: {
+              'Content-Type':'application/json',
+          }
         }).then(response => response.data);
     }
 
