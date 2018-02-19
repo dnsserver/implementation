@@ -8,7 +8,7 @@ from flask_nav.elements import Navbar, View
 from flask_bootstrap import Bootstrap
 from flask_cors import CORS
 
-from .database import register_database, db, admin, User, OrnType
+from .database import register_database, db, admin, User, SourceType
 from .utils import register_blueprints
 from .oidc import register_oidc, oidc
 
@@ -25,6 +25,7 @@ def create_app(config=None):
         SQLALCHEMY_ECHO=False,
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
 
+        OIDC_CERTIFICATE_VERIFY=False,
         OIDC_CLIENT_SECRETS='opal3/client_secrets.json',
         OIDC_ID_TOKEN_COOKIE_SECURE=False,
         OIDC_REQUIRE_VERIFIED_EMAIL=False,
@@ -74,7 +75,7 @@ def register_cli(app):
         """Creates the blueprints tables."""
         db.create_all()
         for tmp in ["csv", "json", "text", "praquet", "jdbc"]:
-            dt = OrnType()
+            dt = SourceType()
             dt.name = tmp
             db.session.add(dt)
         db.session.commit()

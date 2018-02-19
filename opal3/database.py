@@ -55,6 +55,111 @@ class User(db.Model):
         }
 
 
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64))
+
+    def __str__(self):
+        return self.name
+
+    def json_obj(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
+
+
+class SourceType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+
+    def __str__(self):
+        return self.name
+
+    def json_obj(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
+
+
+# Create M2M table
+source_tags_table = db.Table('source_tags', db.Model.metadata,
+                          db.Column('source_id', db.Integer, db.ForeignKey('source.id')),
+                          db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
+                          )
+
+
+class Source(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    uri = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    tags = db.relationship('Tag', secondary=source_tags_table)
+    source_type_id = db.Column(db.Integer, db.ForeignKey(SourceType.id), nullable=False)
+    source_type = db.relationship(SourceType, backref='source')
+
+    def __str__(self):
+        return self.name
+
+    def json_obj(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "uri": self.uri,
+            "description": self.description,
+            "date": self.date,
+            "tags": [tag.name for tag in self.tags],
+            "source_type": self.source_type_id,
+        }
+
+
+class Algorithm(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+    def __str__(self):
+        return self.name
+
+    def json_obj(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "date": self.date
+        }
+
+
+orn_source_table = db.Table('orn_source', db.Model.metadata,
+                          db.Column('source_id', db.Integer, db.ForeignKey('source.id')),
+                          db.Column('orn_id', db.Integer, db.ForeignKey('orn.id'))
+                          )
+orn_algorithm_table = db.Table('orn_algorithm', db.Model.metadata,
+                          db.Column('algorithm_id', db.Integer, db.ForeignKey('algorithm.id')),
+                          db.Column('orn_id', db.Integer, db.ForeignKey('orn.id'))
+                          )
+
+
+class Orn(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    sources = db.relationship('Source', secondary=orn_source_table)
+    algorithms = db.relationship('Algorithm', secondary=orn_algorithm_table)
+
+    def json_obj(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "sources": [source.id for source in self.sources],
+            "algorithms": [algorithm.id for algorithm in self.algorithms]
+        }
+
+
 class PersonaProvider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
@@ -74,138 +179,11 @@ class PersonaProvider(db.Model):
         }
 
 
-class OrnType(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), nullable=False)
-
-    def __str__(self):
-        return self.name
-
-    def json_obj(self):
-        return {
-            "id": self.id,
-            "name": self.name
-        }
-
-
-class Tag(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(64))
-
-    def __str__(self):
-        return self.name
-
-    def json_obj(self):
-        return {
-            "id": self.id,
-            "name": self.name
-        }
-
-
-# Create M2M table
-orn_tags_table = db.Table('orn_tags', db.Model.metadata,
-                          db.Column('orn_id', db.Integer, db.ForeignKey('orn.id')),
-                          db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
-                          )
-
-# Create M2M table
-orn_persona_template_table = db.Table('orn_persona_template', db.Model.metadata,
-                                      db.Column('orn_id', db.Integer, db.ForeignKey('orn.id')),
-                                      db.Column('persona_template_id', db.Integer, db.ForeignKey('persona_template.id'))
-                                      )
-
-
-class Orn(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    uri = db.Column(db.Text, nullable=False)
-    description = db.Column(db.Text)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    tags = db.relationship('Tag', secondary=orn_tags_table)
-    orn_type_id = db.Column(db.Integer, db.ForeignKey(OrnType.id), nullable=False)
-    orn_type = db.relationship(OrnType, backref='orn')
-    persona_template = db.relationship('PersonaTemplate', secondary=orn_persona_template_table)
-
-    def __str__(self):
-        return self.name
-
-    def json_obj(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "uri": self.uri,
-            "description": self.description,
-            "date": self.date,
-            "tags": [tag.name for tag in self.tags],
-            "orn_type": self.orn_type_id,
-        }
-
-
-class PersonaTemplate(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-    orns = db.relationship('Orn', secondary=orn_persona_template_table)
-    recurring = db.Column(db.Boolean, default=False)
-    result_url = db.Column(db.String(200), nullable=False)
-    registered_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    request_json = db.Column(db.Text)
-    response_json = db.Column(db.Text)
-    persona_provider_id = db.Column(db.String(200), db.ForeignKey(PersonaProvider.id))
-    persona_provider = db.relationship(PersonaProvider, backref='persona_template')
-
-    def json_obj(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "orns": [orn.id for orn in self.orns],
-            "recurring": self.recurring,
-            "result_url": self.result_url,
-            "registered_date": str(self.registered_date),
-            "request_json": self.request_json,
-            "response_json": self.response_json,
-            "persona_provider": self.persona_provider_id,
-        }
 
 
 # Customized User model admin
 class UserAdmin(sqla.ModelView):
     inline_models = (PersonaProvider,)
-
-    def is_accessible(self):
-        return hasattr(g, 'user')
-
-
-class OrnAdmin(sqla.ModelView):
-    # Visible columns in the list view
-    column_exclude_list = ['uri', 'description']
-
-    # List of columns that can be sorted. For 'user' column, use User.username as
-    # a column.
-    column_sortable_list = ('name', 'date', ('tag', 'name'))
-
-    column_searchable_list = ('name', 'tags.name')
-
-    column_filters = ('name',
-                      'date',
-                      'tags')
-
-    # Pass arguments to WTForms. In this case, change label for text field to
-    # be 'Big Text' and add required() validator.
-    form_args = dict(
-        uri=dict(label='URI', validators=[validators.required()])
-    )
-
-    form_ajax_refs = {
-        'tags': {
-            'fields': (Tag.name,)
-        }
-    }
-
-    def __init__(self, session):
-        # Just call parent class with predefined model.
-        super(OrnAdmin, self).__init__(Orn, session)
 
     def is_accessible(self):
         return hasattr(g, 'user')
@@ -235,9 +213,12 @@ class MyAdminIndexView(admin.AdminIndexView):
 admin = admin.Admin(name='Admin', template_mode='bootstrap3', index_view=MyAdminIndexView())
 # Add views
 admin.add_view(UserAdmin(User, db.session))
-admin.add_view(OrnAdmin(db.session))
-admin.add_view(MyModelView(OrnType, db.session))
 admin.add_view(MyModelView(Tag, db.session))
-admin.add_view(MyModelView(PersonaTemplate, db.session))
+admin.add_view(MyModelView(SourceType, db.session))
+admin.add_view(MyModelView(Source, db.session))
+admin.add_view(MyModelView(Algorithm, db.session))
+
+admin.add_view(MyModelView(Orn, db.session))
+admin.add_view(MyModelView(PersonaProvider, db.session))
 
 admin.add_link(AuthenticatedMenuLink(name="Logout", endpoint="logout"))
