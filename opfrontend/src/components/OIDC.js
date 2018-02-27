@@ -10,6 +10,7 @@ export default class OIDC extends Component {
         if(!cfg){
             cfg = `{
     "base_url":"http://localhost:3000",
+    "opal_data_provider":"https://localhost:5000",
     "redirect_uri":"/oidc_callback",
     "scopes": "openid profile",
     "client_id": "",

@@ -50,4 +50,28 @@ function OpalAPI() {
           }
         }).then(response => response.data);
     }
+
+    this.getOpalResourceList = function(base_url, resource_name){
+        const url = '/'+resource_name+'/';
+        return axios.request({
+          url: url,
+          method:'get',
+          baseURL: base_url,
+          headers: {
+              'Content-Type':'application/json'
+          }
+        }).then(response => response.data);
+    }
+
+    this.getOpalResourceInfo = function(base_url, resource_name, id){
+        const url = '/'+resource_name+'/'+id;
+        return axios.request({
+          url: url,
+          method:'get',
+          baseURL: base_url,
+          headers: {
+              'Content-Type':'application/json'
+          }
+        }).then(response => response.data);
+    }
 }
