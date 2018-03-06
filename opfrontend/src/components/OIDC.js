@@ -10,17 +10,17 @@ export default class OIDC extends Component {
         if(!cfg){
             cfg = `{
     "base_url":"http://localhost:3000",
-    "opal_data_provider":"https://localhost:5000",
+    "opal_data_provider":"http://localhost:5000",
     "redirect_uri":"/oidc_callback",
     "scopes": "openid profile",
-    "client_id": "",
-    "client_secret": "",
-    "auth_uri":"https://macpro:8448/openid-connect-server-webapp/authorize",
-    "token_uri":"https://macpro:8448/openid-connect-server-webapp/token",
-    "userinfo_uri":"https://macpro:8448/openid-connect-server-webapp/userinfo",
-    "issuer":"https://macpro:8448/openid-connect-server-webapp/",
-    "token_introspection_uri":"https://macpro:8448/openid-connect-server-webapp/introspect",
-    "registration_uri":"https://macpro:8448/openid-connect-server-webapp/register"
+    "client_id": "098c32e0-a4bf-47a6-ae37-d95b3e195855",
+    "client_secret": "EEQLibJPjOqJ9WPhaxBDgrkQZjhzVg38Y0GNbiD2P8AD7d0zBOErk7aBoYSn5lIMF3ZxQXEtAYcvI0Hap0RO-g",
+      "auth_uri":"http://localhost:8080/openid-connect-server-webapp/authorize",
+      "token_uri":"http://localhost:8080/openid-connect-server-webapp/token",
+      "userinfo_uri":"http://localhost:8080/openid-connect-server-webapp/userinfo",
+      "issuer":"http://localhost:8080/openid-connect-server-webapp/",
+      "token_introspection_uri":"http://localhost:8080/openid-connect-server-webapp/introspect",
+      "registration_uri":"http://localhost:8080/openid-connect-server-webapp/register"
 }`;
         }
         this.state = {

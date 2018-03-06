@@ -86,7 +86,7 @@ export default class App extends Component {
                                     </p>
                                 </div>
                             )} />
-                            <Route path="/client" render={props => <Client config={this.state.config} session={this.state.session}/>} />
+                            <Route path="/client" render={props => <Client />} />
                         </Switch>
                         </div>
                     </Router>

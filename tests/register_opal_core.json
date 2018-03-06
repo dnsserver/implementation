@@ -4,7 +4,7 @@
     ],
     "client_name": "persona5",
     "token_endpoint_auth_method": "client_secret_post",
-    "scope": "openid email persona5",
+    "scopes": [1,3],
     "grant_types": [
         "authorization_code"
     ],

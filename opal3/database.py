@@ -50,8 +50,7 @@ class User(db.Model):
             "email": self.email,
             "nick": self.nick,
             "full_name": self.full_name,
-            "other": self.other,
-            "persona_provider": [pp.id for pp in self.persona_provider]
+            "other": self.other
         }
 
 
@@ -164,8 +163,8 @@ class PersonaProvider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
-    user_id = db.Column(db.String(200), db.ForeignKey(User.id))
-    user = db.relationship(User, backref='persona_provider')
+    oidc_request = db.Column(db.Text, nullable=False)
+    oidc_response = db.Column(db.Text, nullable=False)
 
     def __str__(self):
         return self.name
@@ -175,7 +174,8 @@ class PersonaProvider(db.Model):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "user": self.user_id
+            "oidc_request": self.oidc_request,
+            "oidc_response": self.oidc_response
         }
 
 
@@ -183,7 +183,7 @@ class PersonaProvider(db.Model):
 
 # Customized User model admin
 class UserAdmin(sqla.ModelView):
-    inline_models = (PersonaProvider,)
+    # inline_models = (PersonaProvider,)
 
     def is_accessible(self):
         return hasattr(g, 'user')

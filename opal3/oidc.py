@@ -68,9 +68,10 @@ def register_oidc(app):
                 g.user = User.query.get(g.sub)
         elif token is not None:
             info = oidc.get_token_info(token)
-            g.sub = info['sub']
-            g.access_token = token
-            g.access_type = "api"
+            if info['active']:
+                g.sub = info['sub']
+                g.access_token = token
+                g.access_type = "api"
 
     @app.teardown_appcontext
     def teardown_oidc(_):

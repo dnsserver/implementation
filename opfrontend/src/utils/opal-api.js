@@ -74,4 +74,19 @@ function OpalAPI() {
           }
         }).then(response => response.data);
     }
+
+    this.registerClient = function(base_url, token, client){
+        const url = '/client/';
+
+        return axios.request({
+            url: url,
+            method:'post',
+            baseURL: base_url,
+            headers: {
+                'Content-Type':'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            data: client,
+        }).then(response => response.data);
+    }
 }
