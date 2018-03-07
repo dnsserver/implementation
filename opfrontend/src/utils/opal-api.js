@@ -38,12 +38,10 @@ function OpalAPI() {
         }).then(response => response.data);
     }
 
-    this.getUserInfo = function(base_url, token){
-        const url = '/api/userinfo';
+    this.getUserInfo = function(url, token){
         return axios.request({
           url: url,
           method:'get',
-          baseURL: base_url,
           headers: {
               'Content-Type':'application/json',
               'Authorization': `Bearer ${token}`
@@ -77,7 +75,6 @@ function OpalAPI() {
 
     this.registerClient = function(base_url, token, client){
         const url = '/client/';
-
         return axios.request({
             url: url,
             method:'post',
@@ -88,5 +85,45 @@ function OpalAPI() {
             },
             data: client,
         }).then(response => response.data);
+    }
+
+    this.getClientList = function(base_url, token){
+        const url = '/client/';
+        return axios.request({
+            url: url,
+            method:'get',
+            baseURL: base_url,
+            headers: {
+                'Content-Type':'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        }).then(response => response.data);
+    }
+
+    this.getClient = function(base_url, token, id){
+        const url = '/client/'+id;
+        return axios.request({
+            url: url,
+            method:'get',
+            baseURL: base_url,
+            headers: {
+                'Content-Type':'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        }).then(response => response.data);
+    }
+
+    this.redirectForLogin = function(config, callback_url){
+        if(config && config.auth_uri){
+            var q = new URLSearchParams();
+            q.set('client_id', config.client_id);
+            q.set('redirect_uri', callback_url);
+            q.set('scope', config.scopes);
+            q.set('response_type','code');
+            q.set('openid.realm', callback_url);
+            window.location = config.auth_uri +"?"+ q.toString();
+        }else{
+            return false;
+        }
     }
 }

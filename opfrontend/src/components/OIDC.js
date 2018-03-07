@@ -13,8 +13,8 @@ export default class OIDC extends Component {
     "opal_data_provider":"http://localhost:5000",
     "redirect_uri":"/oidc_callback",
     "scopes": "openid profile",
-    "client_id": "098c32e0-a4bf-47a6-ae37-d95b3e195855",
-    "client_secret": "EEQLibJPjOqJ9WPhaxBDgrkQZjhzVg38Y0GNbiD2P8AD7d0zBOErk7aBoYSn5lIMF3ZxQXEtAYcvI0Hap0RO-g",
+    "client_id": "08c9f175-6341-4ff5-a7fa-5ff89f1f453f",
+    "client_secret": "IBSN9i6Cyb4Wh5Fcu8fKYI4ldDt3npa78rTAHLpCP4B3um196XLEpsjWbn6_AMCJ6gppwvmnXY3j5myyew1tGw",
       "auth_uri":"http://localhost:8080/openid-connect-server-webapp/authorize",
       "token_uri":"http://localhost:8080/openid-connect-server-webapp/token",
       "userinfo_uri":"http://localhost:8080/openid-connect-server-webapp/userinfo",
@@ -28,7 +28,7 @@ export default class OIDC extends Component {
         };
         this.handleConfigSubmit = this.handleConfigSubmit.bind(this);
         this.handleConfigChange = this.handleConfigChange.bind(this);
-        this.redirectForLogin = this.redirectForLogin.bind(this);
+        this.login = this.login.bind(this);
 
         const cObj = JSON.parse(cfg);
         if(props.location.pathname === cObj.redirect_uri){
@@ -57,22 +57,14 @@ export default class OIDC extends Component {
         NotificationManager.info("Configuration saved.", '', 3000);
     }
 
-    redirectForLogin(){
+    login(){
         const config = JSON.parse(this.state.config);
-        console.log(config);
+        const opalAPI = new OpalAPI();
         if(config && config.auth_uri){
-            var q = new URLSearchParams();
-            q.set('client_id', config.client_id);
-            q.set('redirect_uri', config.base_url+'/oidc_callback');
-            q.set('scope', config.scopes);
-            q.set('response_type','code');
-            q.set('openid.realm', config.base_url+'/oidc_callback');
-
-            window.location = config.auth_uri +"?"+ q.toString();
+            opalAPI.redirectForLogin(config, config.base_url+'/oidc_callback');
         }else{
             NotificationManager.error("Please provide a configuration first.", '', 3000);
         }
-
     }
 
     render(){
@@ -90,7 +82,7 @@ export default class OIDC extends Component {
                 </div>
                 <button type="submit" className="btn btn-default">Save</button>
             </form>
-            <button type="button" className="btn btn-default" onClick={this.redirectForLogin}>Login</button>
+            <button type="button" className="btn btn-default" onClick={this.login}>Login</button>
             </div>);
     }
 }

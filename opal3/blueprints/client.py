@@ -8,12 +8,12 @@ from werkzeug import exceptions
 
 bp = Blueprint('client', __name__)
 
-#
-# def get_persona_template(ptid, ppid):
-#     pt = PersonaTemplate.query.filter_by(id=ptid, persona_provider_id=ppid).first()
-#     if not pt:
-#         raise exceptions.NotFound("Personal template not found.")
-#     return pt
+
+def get_persona_provider(id):
+    pp = PersonaProvider.query.filter_by(id=id).first()
+    if not pp:
+        raise exceptions.NotFound("PersonalProvider not found.")
+    return pp
 
 
 @bp.route('/token_info/', methods=['GET'])
@@ -32,26 +32,26 @@ def token_info():
 @bp.route('/client/', methods=['GET'])
 @oidc.accept_token(True, ['openid'])
 def index():
-    # ds_clients = PersonaTemplate.query.filter_by(persona_provider_id=g.sub).all()
-    # cls = [cl.json_obj() for cl in ds_clients]
-    cls = {'a':'test'}
+    ds_clients = PersonaProvider.query.all()
+    cls = [cl.json_obj() for cl in ds_clients]
+    #cls = {'a':'test'}
     return jsonify(cls)
 
 
-# @bp.route('/client/<cid>', methods=['DELETE'])
-# @oidc.accept_token(True, ['openid'])
-# def delete(cid):
-#     pt = get_persona_template(cid, g.sub)
-#     db.session.delete(pt)
-#     db.session.commit()
-#     return redirect(url_for('client.index'))
-#
-#
-# @bp.route('/client/<cid>', methods=['GET'])
-# @oidc.accept_token(True, ['openid'])
-# def details(cid):
-#     pt = get_persona_template(cid, g.sub)
-#     return jsonify(pt.json_obj())
+@bp.route('/client/<pid>', methods=['DELETE'])
+@oidc.accept_token(True, ['openid'])
+def delete(pid):
+    pp = get_persona_provider(pid)
+    db.session.delete(pp)
+    db.session.commit()
+    return jsonify(text="deleted"), 200
+
+
+@bp.route('/client/<pid>', methods=['GET'])
+@oidc.accept_token(True, ['openid'])
+def details(pid):
+    pp = get_persona_provider(pid)
+    return jsonify(pp.json_obj())
 
 
 @bp.route('/client/', methods=['POST'])

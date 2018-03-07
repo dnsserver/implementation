@@ -25,7 +25,7 @@ class OpenIDConnect(flask_oidc.OpenIDConnect):
                 token = request.form['access_token']
             elif 'access_token' in request.args:
                 token = request.args['access_token']
-        print(token)
+        # print(token)
         return token
 
     def delete_client(self, id):

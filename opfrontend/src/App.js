@@ -7,7 +7,9 @@ import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 import OIDC from './components/OIDC';
 import Nav from './components/Nav';
-import Client from './components/Client';
+import Persona from './components/Persona';
+import Profile from './components/Profile';
+import OpalClient from './components/OpalClient';
 
 import { OpalAPI } from './utils/opal-api';
 
@@ -22,7 +24,8 @@ export default class App extends Component {
         this.state = {
             isAuthenticated: session? true: false,
             session: session,
-            config: cfg
+            config: cfg,
+            isAdmin: false
         };
         this.onSuccessLogin = this.onSuccessLogin.bind(this);
         this.onFailedLogin = this.onFailedLogin.bind(this);
@@ -43,9 +46,9 @@ export default class App extends Component {
         sessionStorage.setItem('session', JSON.stringify(u));
         this.setState({
             isAuthenticated: true,
-            session: u
+            session: u,
+            isAdmin: false
         });
-        console.log('login success');
         const cfg = JSON.parse(this.state.config);
         window.location = cfg.base_url;
     }
@@ -54,7 +57,8 @@ export default class App extends Component {
         sessionStorage.removeItem("session");
         this.setState({
             isAuthenticated: false,
-            session: null
+            session: null,
+            isAdmin: false
         });
         NotificationManager.error(m, '', 1000);
     }
@@ -63,7 +67,27 @@ export default class App extends Component {
         sessionStorage.removeItem("session");
         this.setState({
             isAuthenticated: false,
-            session: null
+            session: null,
+            isAdmin: false
+        });
+    }
+
+    componentDidMount() {
+        if(!this.state.isAuthenticated){
+            return;
+        }
+        let opalAPI = new OpalAPI();
+        const config = JSON.parse(this.state.config);
+        opalAPI.getUserInfo(config.userinfo_uri, this.state.session.access_token).then((data)=>{
+            if(data['preferred_username'] === 'admin'){
+                this.setState({
+                    isAdmin: true
+                });
+            }else{
+                this.setState({
+                    isAdmin: false
+                });
+            }
         });
     }
 
@@ -73,20 +97,19 @@ export default class App extends Component {
                 <div className="container">
                     <Router >
                         <div>
-                        <Route render={props => <Nav logout={this.logout} />} />
+                        <Route render={props => <Nav logout={this.logout} isAdmin={this.state.isAdmin}/>} />
                         <Switch>
                             <Route exact path="/" render={props => (
                                 <div className="App">
                                     <header className="App-header">
                                         <img src={logo} className="App-logo" alt="logo" />
-                                        <h1 className="App-title">Welcome to React</h1>
+                                        <h1 className="App-title">Welcome to Oapl Client - React</h1>
                                     </header>
-                                    <p className="App-intro">
-                                        To get started, edit <code>src/App.js</code> and save to reload.
-                                    </p>
                                 </div>
                             )} />
-                            <Route path="/client" render={props => <Client />} />
+                            <Route path="/persona" render={props => <Persona isAdmin={this.state.isAdmin}/>} />
+                            <Route path="/profile" render={props => <Profile />} />
+                            <Route path="/opal_oidc/:id" render={props => <OpalClient {...props}/>} />
                         </Switch>
                         </div>
                     </Router>

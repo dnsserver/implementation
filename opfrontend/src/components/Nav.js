@@ -18,7 +18,7 @@ export default class Nav extends Component {
 
                 <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                   <ul className="nav navbar-nav">
-                    <li><Link to="/client">Register Client</Link></li>
+                    <li><Link to="/persona">Personas</Link></li>
                     <li><Link to="/profile">Profile</Link></li>
                     <li><Link onClick={this.props.logout} to="/">Logout</Link></li>
                   </ul>
