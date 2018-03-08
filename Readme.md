@@ -8,6 +8,7 @@ Init
 virtualenv .
 source bin/activate
 pip install -e .
+bin/flask initdb
 python wsgi.py
 ```
 
