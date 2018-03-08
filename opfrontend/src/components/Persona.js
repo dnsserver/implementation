@@ -29,7 +29,6 @@ export default class Persona extends Component {
     handleSubmit(e){
         e.preventDefault();
         const config = this.state.config;
-        const session = this.state.session;
         let scopes = this.state.scopes;
 
         let pp = {
@@ -54,7 +53,7 @@ export default class Persona extends Component {
         }
         console.log(pp);
         let opalAPI = new OpalAPI();
-        opalAPI.registerClient(config.opal_data_provider, session.access_token, pp).then((data)=>{
+        opalAPI.registerClient(pp).then((data)=>{
             NotificationManager.info("Client registered.", '', 3000);
             this.setState({
                 name: '',
@@ -98,13 +97,12 @@ export default class Persona extends Component {
     componentDidMount() {
         let opalAPI = new OpalAPI();
         const config = this.state.config;
-        const session = this.state.session;
         opalAPI.getOpalResourceList(config.opal_data_provider, 'orn').then((data)=>{
             this.setState({
                 orns: data
             });
         });
-        opalAPI.getClientList(config.opal_data_provider, session.access_token).then((data)=>{
+        opalAPI.getClientList().then((data)=>{
             this.setState({
                 clients: data
             });
@@ -121,7 +119,7 @@ export default class Persona extends Component {
                     {clients.map((c) => {
                         return (
                             <div className="list-group-item list-group-item-action flex-column align-items-start" key={c.id}>
-                                <Link to={"/opal_oidc/"+c.id}><h5 className="mb-1">{c.name}</h5></Link>
+                                <Link to={"/opal_oidc/"+c.name}><h5 className="mb-1">{c.name}</h5></Link>
                                 <small className="text-muted">{c.description}</small>
                             </div>
                         );
@@ -172,7 +170,7 @@ export default class Persona extends Component {
                                     onChange={this.handleScopeChange}>
                                 {orns.map((o) => {
                                     return (
-                                        <option key={o.id} value={o.id}>{o.name}</option>
+                                        <option key={o.id} value={o.id+':'+o.name}>{o.name}</option>
                                     );
                                 })}
                                 </select>

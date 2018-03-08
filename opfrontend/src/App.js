@@ -3,9 +3,9 @@ import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
 import 'react-notifications/lib/notifications.css';
-import {NotificationContainer, NotificationManager} from 'react-notifications';
 
-import OIDC from './components/OIDC';
+import {NotificationContainer} from 'react-notifications';
+
 import Nav from './components/Nav';
 import Persona from './components/Persona';
 import Profile from './components/Profile';
@@ -16,78 +16,40 @@ import { OpalAPI } from './utils/opal-api';
 export default class App extends Component {
     constructor(props){
         super(props);
-        let session = sessionStorage.getItem('session');
-        if(session){
-            session = JSON.parse(session);
-        }
-        const cfg = sessionStorage.getItem('config');
         this.state = {
-            isAuthenticated: session? true: false,
-            session: session,
-            config: cfg,
-            isAdmin: false
-        };
-        this.onSuccessLogin = this.onSuccessLogin.bind(this);
-        this.onFailedLogin = this.onFailedLogin.bind(this);
-        this.onSaveConfiguration = this.onSaveConfiguration.bind(this);
-
-        this.logout = this.logout.bind(this);
-    }
-
-    onSaveConfiguration(cfg){
-        console.log(cfg);
-        this.setState({
-            config: cfg
-        });
-        sessionStorage.setItem('config', cfg);
-    }
-
-    onSuccessLogin(u){
-        sessionStorage.setItem('session', JSON.stringify(u));
-        this.setState({
-            isAuthenticated: true,
-            session: u,
-            isAdmin: false
-        });
-        const cfg = JSON.parse(this.state.config);
-        window.location = cfg.base_url;
-    }
-
-    onFailedLogin(m){
-        sessionStorage.removeItem("session");
-        this.setState({
             isAuthenticated: false,
-            session: null,
-            isAdmin: false
-        });
-        NotificationManager.error(m, '', 1000);
+            isAdmin: false,
+            username: null
+        };
     }
 
     logout() {
         sessionStorage.removeItem("session");
         this.setState({
             isAuthenticated: false,
-            session: null,
-            isAdmin: false
+            isAdmin: false,
+            username: null
         });
     }
 
     componentDidMount() {
-        if(!this.state.isAuthenticated){
-            return;
-        }
-        let opalAPI = new OpalAPI();
-        const config = JSON.parse(this.state.config);
-        opalAPI.getUserInfo(config.userinfo_uri, this.state.session.access_token).then((data)=>{
-            if(data['preferred_username'] === 'admin'){
-                this.setState({
-                    isAdmin: true
-                });
-            }else{
-                this.setState({
-                    isAdmin: false
-                });
+        const opalAPI = new OpalAPI();
+        opalAPI.getTokenInfo().then((data)=>{
+            let auth = false;
+            let admin = false;
+            let username = null;
+            if(data['user_id']){
+                auth = true;
+                if(data['user_id']==='admin'){
+                    admin = true;
+                }
+                username = data['user_id'];
             }
+            this.setState({
+                isAuthenticated: auth,
+                isAdmin: admin,
+                username: username
+            });
         });
     }
 
@@ -119,12 +81,7 @@ export default class App extends Component {
         }else{
             return (
                 <div className="container">
-                    <Router >
-                        <Route render={(props) => <OIDC  onSaveConfiguration={this.onSaveConfiguration}
-                                            onFailedLogin={this.onFailedLogin}
-                                            onSuccessLogin={this.onSuccessLogin} {...props}/>} />
-                    </Router>
-                    <NotificationContainer />
+                    Please Login.
                 </div>
             );
         }

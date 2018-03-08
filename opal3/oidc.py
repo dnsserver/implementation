@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import requests
-from flask import flash, session, redirect, url_for, request, abort, g
+from flask import flash, session, redirect, url_for, request, abort, g, jsonify
 import flask_oidc
+from functools import wraps
+
 from .database import User, db
 
 flask_oidc.logger.setLevel(10)
@@ -13,6 +15,17 @@ class OpenIDConnect(flask_oidc.OpenIDConnect):
 
     def get_token_info(self, token):
         return self._get_token_info(token)
+
+    def require_access_token(self, func):
+        """Checks if there is access token or not."""
+        @wraps(func)
+        def decorated_function(*args, **kwargs):
+            if self.get_access_token():
+                return func(*args, **kwargs)
+            else:
+                return jsonify({"message": "no token"})
+        return decorated_function
+
 
     def get_access_token(self):
         token = None

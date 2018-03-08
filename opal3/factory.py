@@ -12,14 +12,13 @@ from .database import register_database, db, admin, User, SourceType
 from .utils import register_blueprints
 from .oidc import register_oidc, oidc
 
-
 def create_app(config=None):
     app = Flask('opal3')
 
     app.config.update(dict(
         DEBUG=True,
         TESTING=True,
-        SECRET_KEY=b'_5#y2L"Fd3sd8z\n\xec]/',
+        SECRET_KEY=b'_5#y2L"Fdsdddsdd8z\n\xec]/',
 
         SQLALCHEMY_DATABASE_URI='sqlite:///opal3.db',
         SQLALCHEMY_ECHO=False,
@@ -58,7 +57,7 @@ def register_nav(app):
         items = list()
         items.append(View('Home', 'index'))
         if oidc.user_loggedin:
-            items.append(View('Client', 'client.index'))
+            # items.append(View('Client', 'client.index'))
             if oidc.user_getfield("sub") == "90342.ASDFJWFA":
                 items.append(View("Admin", "admin.index"))
             items.append(View('Logout', 'logout'))

@@ -10,36 +10,40 @@ bp = Blueprint('client', __name__)
 
 
 def get_persona_provider(id):
-    pp = PersonaProvider.query.filter_by(id=id).first()
+    pp = PersonaProvider.query.filter_by(name=id).first()
     if not pp:
         raise exceptions.NotFound("PersonalProvider not found.")
     return pp
 
-
-@bp.route('/token_info/', methods=['GET'])
-@oidc.accept_token(True, ['openid'])
-def token_info():
+@bp.route('/user_info/', methods=['GET'])
+def user_info():
     token = oidc.get_access_token()
-    print(token)
     if token:
         info = oidc.get_token_info(token)
-        print(info)
+        return jsonify(info)
+    return jsonify({"message": "no token"})
 
+
+@bp.route('/token_info/', methods=['GET'])
+def token_info():
+    token = oidc.get_access_token()
+    if token:
+        info = oidc.get_token_info(token)
         return jsonify(info)
     return jsonify({"message": "no token"})
 
 
 @bp.route('/client/', methods=['GET'])
-@oidc.accept_token(True, ['openid'])
+# @oidc.accept_token(False, ['openid'])
+@oidc.require_access_token
 def index():
     ds_clients = PersonaProvider.query.all()
     cls = [cl.json_obj() for cl in ds_clients]
-    #cls = {'a':'test'}
     return jsonify(cls)
 
 
 @bp.route('/client/<pid>', methods=['DELETE'])
-@oidc.accept_token(True, ['openid'])
+@oidc.require_access_token
 def delete(pid):
     pp = get_persona_provider(pid)
     db.session.delete(pp)
@@ -48,14 +52,14 @@ def delete(pid):
 
 
 @bp.route('/client/<pid>', methods=['GET'])
-@oidc.accept_token(True, ['openid'])
+@oidc.require_access_token
 def details(pid):
     pp = get_persona_provider(pid)
     return jsonify(pp.json_obj())
 
 
 @bp.route('/client/', methods=['POST'])
-@oidc.accept_token(True, ['openid'])
+@oidc.require_access_token
 def register():
     client_obj = request.get_json()
 
@@ -65,13 +69,15 @@ def register():
 
     # TODO: verify scope list
     scopes = client_obj.pop('scopes', None)
-    selected_orns = Orn.query.filter(Orn.id.in_(scopes)).all()
-    client_obj['scope'] = " ".join(["{}:{}".format(s.id,s.name) for s in selected_orns])
+    # scopes are on the DP - therefore not able to query in the database.
+    # commenting it out
+    #selected_orns = Orn.query.filter(Orn.name.in_(scopes)).all()
+    #client_obj['scope'] = " ".join(["{}:{}".format(s.id,s.name) for s in selected_orns])
+    client_obj['scope'] = " ".join(scopes)
 
     client_obj['contacts'] = [email]
 
     pt = PersonaProvider()
-    pt.orns = selected_orns
     pt.name = client_obj['client_name']
 
 
