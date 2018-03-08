@@ -41,6 +41,11 @@ class OpenIDConnect(flask_oidc.OpenIDConnect):
         # print(token)
         return token
 
+    def get_configuration(self):
+        cfg = self.client_secrets.copy()
+        cfg.pop('client_secret', None)
+        return cfg
+
     def delete_client(self, id):
         pass
 

@@ -15,6 +15,14 @@ def get_persona_provider(id):
         raise exceptions.NotFound("PersonalProvider not found.")
     return pp
 
+
+@bp.route('/configuration/', methods=['GET'])
+@oidc.require_access_token
+def configuration():
+    conf = oidc.get_configuration()
+    return jsonify(conf)
+
+
 @bp.route('/user_info/', methods=['GET'])
 def user_info():
     token = oidc.get_access_token()

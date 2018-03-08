@@ -93,7 +93,7 @@ function OpalAPI() {
         }).then(response => response.data);
     }
 
-    // Request on Opal Client
+    // Request on Local (Opal Client)
     this.registerClient = function(client){
         const url = '/client/';
         return axios.request({
@@ -106,7 +106,7 @@ function OpalAPI() {
         }).then(response => response.data);
     }
 
-    // Request on Opal Client
+    // Request on Local (Opal Client)
     this.getClientList = function(){
         const url = '/client/';
         return axios.request({
@@ -118,7 +118,7 @@ function OpalAPI() {
         }).then(response => response.data);
     }
 
-    // Request on Opal Client
+    // Request on Local (Opal Client)
     this.getClient = function(id){
         const url = '/client/'+id;
         return axios.request({
@@ -130,9 +130,33 @@ function OpalAPI() {
         }).then(response => response.data);
     }
 
-    // Request on Opal Client
+    // Request on Local (Opal Client)
     this.getTokenInfo = function(){
         const url = '/token_info/';
+        return axios.request({
+            url: url,
+            method:'get',
+            headers: {
+                'Content-Type':'application/json'
+            },
+        }).then(response => response.data);
+    }
+
+    // Request on Local (Opal Client)
+    this.getConfiguration = function(){
+        const url = '/configuration/';
+        return axios.request({
+            url: url,
+            method:'get',
+            headers: {
+                'Content-Type':'application/json'
+            },
+        }).then(response => response.data);
+    }
+
+    // Request on Local (Opal Client)
+    this.logout = function(){
+        const url = '/logout';
         return axios.request({
             url: url,
             method:'get',

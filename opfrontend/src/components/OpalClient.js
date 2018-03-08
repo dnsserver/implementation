@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {NotificationManager} from 'react-notifications';
 
 import { OpalAPI } from '../utils/opal-api';
 
@@ -25,6 +26,8 @@ export default class OpalClient extends Component {
 
             const params = new URLSearchParams(this.props.location.search);
             const code = params.get('code');
+            const error = params.get('error');
+            const error_description = params.get('error_description');
 
             opalAPI.getClient(id).then((data)=>{
                 const name = data["name"];
@@ -49,7 +52,17 @@ export default class OpalClient extends Component {
                 if(code){
                     opalAPI.getAccessToken(client_cfg, code).then((data)=>{
                         console.log(data);
+                        NotificationManager.info("Client approved.", '', 3000);
+                    }).catch((error)=>{
+                        let msg = error.message;
+                        if(error && error.response && error.response.data &&
+                            error.response.data.error_description){
+                                msg = error.response.data.error_description;
+                        }
+                        NotificationManager.error(msg, '', 3000);
                     });
+                }else if(error){
+                    NotificationManager.error(error_description, '', 3000);
                 }else{
                     opalAPI.redirectForLogin(client_cfg, oidc_response["redirect_uris"][0]);
                 }

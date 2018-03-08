@@ -7,13 +7,11 @@ import { OpalAPI } from '../utils/opal-api';
 export default class Persona extends Component {
     constructor(props){
         super(props);
-        const sess = JSON.parse(sessionStorage.getItem('session'));
         const cfg = JSON.parse(sessionStorage.getItem('config'));
         this.state = {
             orns: [],
             clients: [],
             config: cfg,
-            session: sess,
             // Properties for the PersonaProvider registration
             name: '',
             description: '',
@@ -30,6 +28,11 @@ export default class Persona extends Component {
         e.preventDefault();
         const config = this.state.config;
         let scopes = this.state.scopes;
+        scopes.push('openid');
+        scopes.push('profile');
+        if(this.state.recurring){
+            scopes.push('offline_access');
+        }
 
         let pp = {
             "redirect_uris": [
@@ -51,7 +54,6 @@ export default class Persona extends Component {
             "recurring":this.state.recurring,
             "result_url":this.state.result_url
         }
-        console.log(pp);
         let opalAPI = new OpalAPI();
         opalAPI.registerClient(pp).then((data)=>{
             NotificationManager.info("Client registered.", '', 3000);

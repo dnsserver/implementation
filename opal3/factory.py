@@ -73,10 +73,13 @@ def register_cli(app):
     def initdb_command():
         """Creates the blueprints tables."""
         db.create_all()
+
+        # Add source types
         for tmp in ["csv", "json", "text", "praquet", "jdbc"]:
-            dt = SourceType()
-            dt.name = tmp
-            db.session.add(dt)
+            st = SourceType()
+            st.name = tmp
+            db.session.add(st)
+
         db.session.commit()
         click.echo('Initialized the database.')
 

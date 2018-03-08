@@ -21,14 +21,18 @@ export default class App extends Component {
             isAdmin: false,
             username: null
         };
+        this.logout = this.logout.bind(this);
     }
 
     logout() {
-        sessionStorage.removeItem("session");
+        const opalAPI = new OpalAPI();
         this.setState({
             isAuthenticated: false,
             isAdmin: false,
             username: null
+        });
+        opalAPI.logout().then((data)=>{
+            window.location = '/';
         });
     }
 
@@ -49,6 +53,9 @@ export default class App extends Component {
                 isAuthenticated: auth,
                 isAdmin: admin,
                 username: username
+            });
+            opalAPI.getConfiguration().then((data)=>{
+                sessionStorage.setItem("config", JSON.stringify(data));
             });
         });
     }
