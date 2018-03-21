@@ -172,7 +172,7 @@ export default class Persona extends Component {
                                     onChange={this.handleScopeChange}>
                                 {orns.map((o) => {
                                     return (
-                                        <option key={o.id} value={o.id+':'+o.name}>{o.name}</option>
+                                        <option key={o.id} value={o.name}>{o.name}</option>
                                     );
                                 })}
                                 </select>

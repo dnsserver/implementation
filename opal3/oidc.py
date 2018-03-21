@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import requests
+import json
 from flask import flash, session, redirect, url_for, request, abort, g, jsonify
 import flask_oidc
 from functools import wraps
+from sqlalchemy.event import listen
 
-from .database import User, db
+from .database import User, db, Orn
 
 flask_oidc.logger.setLevel(10)
 
@@ -49,6 +51,36 @@ class OpenIDConnect(flask_oidc.OpenIDConnect):
     def delete_client(self, id):
         pass
 
+    def _update_client(self, cl):
+        token = self.client_secrets['registration_access_token']
+        url = "%s/%s"%(self.client_secrets['registration_uri'], cl['client_id'])
+        if not token:
+            raise Exception("No access token")
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer {}".format(token)
+        }
+        # grant_types = " ".join(cl["grant_types"])
+        # cl["grant_types"] = grant_types
+
+        r = requests.put(url, json=cl, headers=headers)
+        r.raise_for_status()
+
+    def _get_client(self):
+        token = self.client_secrets['registration_access_token']
+        url = "%s/%s"%(self.client_secrets['registration_uri'], self.client_secrets['client_id'])
+        if not token:
+            raise Exception("No access token")
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer {}".format(token)
+        }
+        r = requests.get(url, headers=headers)
+        r.raise_for_status()
+        return r.json()
+
     def register_client(self, data):
         """
         :param data: python object that can be serialized into json
@@ -67,12 +99,55 @@ class OpenIDConnect(flask_oidc.OpenIDConnect):
         r.raise_for_status()
         return r.json()
 
+    def update_scope(self, orn):
+        print("update scope for %s"%orn['name'])
+        cl = self._get_client()
+        scopes = cl['scope'].split(' ')
+        if orn['name'] not in scopes:
+            scopes.append(orn['name'])
+
+        cl['scope'] = ' '.join(scopes)
+        self._update_client(cl)
+
+    def insert_scope(self, orn):
+        print("insert scope for %s"%orn['name'])
+        cl = self._get_client()
+        scopes = cl['scope'].split(' ')
+        if orn['name'] not in scopes:
+            scopes.append(orn['name'])
+
+        cl['scope'] = ' '.join(scopes)
+        self._update_client(cl)
+
+    def delete_scope(self, orn):
+        print("delete scope for %s"%orn['name'])
+        cl = self._get_client()
+        scopes = cl['scope'].split(' ')
+        if orn['name'] in scopes:
+            scopes.remove(orn['name'])
+
+        cl['scope'] = ' '.join(scopes)
+        self._update_client(cl)
+
 
 oidc = OpenIDConnect()
+
+def orn_after_insert(mapper, connection, instance):
+    oidc.insert_scope(instance.json_obj())
+
+def orn_after_update(mapper, connection, instance):
+    oidc.update_scope(instance.json_obj())
+
+def orn_after_delete(mapper, connection, instance):
+    oidc.delete_scope(instance.json_obj())
 
 
 def register_oidc(app):
     oidc.init_app(app)
+
+    listen(Orn, 'after_update', orn_after_update)
+    listen(Orn, 'after_insert', orn_after_insert)
+    listen(Orn, 'after_delete', orn_after_delete)
 
     @app.before_request
     def before_request_oidc():

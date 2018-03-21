@@ -15,6 +15,7 @@ function OpalAPI() {
         var params = new URLSearchParams();
         params.append('grant_type', 'authorization_code');
         params.append('code', code);
+        params.append('scope', config.scopes);
         params.append('redirect_uri', redirect_uri);
         return axios.request({
             url: url,
@@ -59,6 +60,9 @@ function OpalAPI() {
             q.set('client_id', config.client_id);
             q.set('redirect_uri', callback_url);
             q.set('scope', config.scopes);
+            if(config.audience){
+                q.set('audience', config.audience);
+            }
             q.set('response_type','code');
             q.set('openid.realm', callback_url);
             window.location = config.auth_uri +"?"+ q.toString();
@@ -90,6 +94,21 @@ function OpalAPI() {
           headers: {
               'Content-Type':'application/json'
           }
+        }).then(response => response.data);
+    }
+
+    // Request on Opal Data Provider
+    this.submitJob = function(opal_dp_url, token, job){
+        const url = '/submit_request/';
+        return axios.request({
+          url: url,
+          method:'post',
+          baseURL: opal_dp_url,
+          headers: {
+              'Content-Type':'application/json',
+              'Authorization': `Bearer ${token}`
+          },
+          data: job
         }).then(response => response.data);
     }
 

@@ -14,7 +14,16 @@ export default class OpalClient extends Component {
             oidc_request: null,
             oidc_response: null
         };
+        this.showError = this.showError.bind(this);
+    }
 
+    showError(error){
+        let msg = error.message;
+        if(error && error.response && error.response.data &&
+            error.response.data.error_description){
+                msg = error.response.data.error_description;
+        }
+        NotificationManager.error(msg, '', 3000);
     }
 
     componentDidMount() {
@@ -46,20 +55,34 @@ export default class OpalClient extends Component {
                     "redirect_uri": oidc_response["redirect_uris"][0],
                     "client_id":oidc_response["client_id"],
                     "client_secret":oidc_response["client_secret"],
-                    "scopes":oidc_response["scope"]
+                    "scopes":oidc_response["scope"],
+                    "aud" : "1eeb12be-5b4f-40c7-ab2d-a9a114b95273"
                 }
 
                 if(code){
-                    opalAPI.getAccessToken(client_cfg, code).then((data)=>{
-                        console.log(data);
+                    opalAPI.getAccessToken(client_cfg, code).then((oidc_data)=>{
                         NotificationManager.info("Client approved.", '', 3000);
+                        let scopes = oidc_response["scope"].split(' ');
+                        scopes = scopes.filter((e)=>{
+                            return e !== 'openid' && e!== 'profile';
+                        });
+                        let job = {
+                            id: "some_unique_id",
+                            orn: scopes[0],
+                            sync: false,
+                            url: null,
+                            params: null
+                        };
+                        console.log(oidc_data);
+                        opalAPI.submitJob(config.opal_data_provider,
+                            oidc_data['access_token'], job).then((odp_data)=>{
+                            NotificationManager.info("Job posted.", '', 3000);
+                            console.log(odp_data);
+                        }).catch((error)=>{
+                            this.showError(error);
+                        });
                     }).catch((error)=>{
-                        let msg = error.message;
-                        if(error && error.response && error.response.data &&
-                            error.response.data.error_description){
-                                msg = error.response.data.error_description;
-                        }
-                        NotificationManager.error(msg, '', 3000);
+                        this.showError(error);
                     });
                 }else if(error){
                     NotificationManager.error(error_description, '', 3000);

@@ -26,7 +26,7 @@ Frontend
 --------
 
 ```
-cd frontend
+cd opfrontend
 npm run build
 ```
 
